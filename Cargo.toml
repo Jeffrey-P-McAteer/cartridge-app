@@ -1,0 +1,12 @@
+[package]
+name = "cartridge_app"
+version = "0.1.0"
+authors = ["Jeffrey McAteer <jeffrey.p.mcateer@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "*", features = ["winuser","wincon","shellapi"] }
+
+
