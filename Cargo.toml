@@ -5,8 +5,8 @@ authors = ["Jeffrey McAteer <jeffrey.p.mcateer@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-
-[target.'cfg(windows)'.dependencies]
-winapi = { version = "*", features = ["winuser","wincon","shellapi"] }
+systray = "0.3.0"
 
 
+#[target.'cfg(windows)'.dependencies]
+#winapi = { version = "*", features = ["winuser","wincon","shellapi"] }
