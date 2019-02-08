@@ -1,10 +1,11 @@
 
 use std::fs::File;
 use std::io::prelude::*;
+use std::path::Path;
 
 pub fn os_main() {
   // Take embedded SDL2.dll and put it in current dir
-  {
+  if ! Path::new("SDL2.dll").exists() {
     let mut file = File::create("SDL2.dll").expect("Could not create SDL2.dll");
     // Write a slice of bytes to the file
     match file.write_all(include_bytes!("../SDL2.dll")) {
@@ -17,7 +18,7 @@ pub fn os_main() {
   
   // Windows doesn't exactly have a stable temp file API
   // and I'm not going to invent one, we'll just dump the icon wherever we currently are.
-  {
+  if ! Path::new("icon.png").exists() {
     let mut file = File::create("icon.png").expect("Could not create icon.png");
     // Write a slice of bytes to the file
     match file.write_all(include_bytes!("../icon.png")) {
