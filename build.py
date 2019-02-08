@@ -52,7 +52,10 @@ if __name__ == '__main__':
   for tgt in NATIVE_CARGO_TARGETS:
     print("Compiling shared library and binary for {}".format(tgt))
     subprocess.call(["cargo", "build", "--release", "--target", tgt])
-    assume_exists("Native binary", "./target/{}/release/{}".format(tgt, APP_NAME))
+    if "linux" in sys.platform:
+      assume_exists("Native binary", "./target/{}/release/{}".format(tgt, APP_NAME))
+    else:
+      assume_exists("Native binary", "./target/{}/release/{}.exe".format(tgt, APP_NAME))
     
   if socket.gethostname() == "azure-angel":
     print("Detected Jeffrey's laptop, pushing built artifacts to cs.odu.edu/~jmcateer/"+APP_NAME+"/")
