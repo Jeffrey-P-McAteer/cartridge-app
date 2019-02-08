@@ -70,10 +70,16 @@ if __name__ == '__main__':
         "cs:./secure_html/"+APP_NAME+"/"+APP_NAME+"-{}.exe".format(tgt)
       ])
     for tgt in NATIVE_CARGO_TARGETS:
-      subprocess.call(["scp",
-        "./target/{}/release/{}".format(tgt, APP_NAME),
-        "cs:./secure_html/"+APP_NAME+"/"+APP_NAME+"-{}".format(tgt)
-      ])
+      if "linux" in sys.platform:
+        subprocess.call(["scp",
+          "./target/{}/release/{}".format(tgt, APP_NAME),
+          "cs:./secure_html/"+APP_NAME+"/"+APP_NAME+"-{}".format(tgt)
+        ])
+      else:
+        subprocess.call(["scp",
+          "./target/{}/release/{}.exe".format(tgt, APP_NAME),
+          "cs:./secure_html/"+APP_NAME+"/"+APP_NAME+"-{}.exe".format(tgt)
+        ])
     subprocess.call(["ssh", "cs", "chmod -R a+rx ./secure_html/"+APP_NAME+"/"])
     # Print web directory
     subprocess.call(["ssh", "cs", "ls -alh ./secure_html/"+APP_NAME+"/"])
