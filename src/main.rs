@@ -1,5 +1,8 @@
+#![windows_subsystem = "windows"]
 
 extern crate systray;
+
+extern crate orbtk;
 
 #[cfg(target_family = "unix")]
 extern crate mktemp;
@@ -17,8 +20,26 @@ fn main() {
   winmain::os_main();
 }
 
+
+
+use orbtk::*;
+struct MainView;
+impl Widget for MainView {
+    type Template = orbtk::widget::Template;
+    fn create() -> Self::Template {
+        Template::default()
+    }
+}
 pub fn open_settings() {
   println!("Opening settings...");
+  let mut application = Application::default();
+  application
+      .create_window()
+      .bounds((100.0, 100.0, 800.0, 600.0))
+      .title("Cartridge App Settings")
+      .root(MainView::create())
+      .build();
+  application.run();
 }
 
 
