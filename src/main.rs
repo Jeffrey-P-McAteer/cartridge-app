@@ -1,11 +1,45 @@
 
 extern crate systray;
+extern crate mktemp;
+
+use std::io::prelude::*;
 
 fn main() {
-  make_tray();
+  let icon_tmp_f = extract_icon();
+  match icon_tmp_f {
+    Some(icon_tmp_f) => {
+      make_tray( format!("{}", icon_tmp_f.path()) );
+    }
+    None => {
+      make_tray( "".to_string() );
+    }
+  }
+  
 }
 
-fn make_tray() {
+// returns full path to icon
+fn extract_icon() -> Option<mktemp::TempFile> {
+  let icon_bytes = include_bytes!("../icon.png");
+  match mktemp::TempFile::new("icon", ".png") {
+    Ok(mut temp_file) => {
+      match temp_file.inner().write_all(icon_bytes) {
+        Ok(_) => { }
+        Err(e) => {
+          println!("{}", e);
+          return None;
+        }
+      }
+      return Some(temp_file);
+    }
+    Err(e) => {
+      println!("{}", e);
+      return None;
+    }
+  }
+}
+
+fn make_tray(icon_path: String) {
+  println!("icon_path={}", icon_path);
   let mut app;
   match systray::Application::new() {
       Ok(w) => app = w,
@@ -13,21 +47,24 @@ fn make_tray() {
   }
   // w.set_icon_from_file(&"C:\\Users\\qdot\\code\\git-projects\\systray-rs\\resources\\rust.ico".to_string());
   // w.set_tooltip(&"Whatever".to_string());
-  app.set_icon_from_file(&"/usr/share/gxkb/flags/ua.png".to_string()).ok();
-  app.add_menu_item(&"Print a thing".to_string(), |_| {
-      println!("Printing a thing!");
-  }).ok();
-  app.add_menu_item(&"Add Menu Item".to_string(), |window| {
-      window.add_menu_item(&"Interior item".to_string(), |_| {
-          println!("what");
-      }).ok();
-      window.add_menu_separator().ok();
+  if icon_path.len() > 1 {
+    app.set_icon_from_file(&icon_path).ok();
+  }
+  app.add_menu_item(&"Cartridge App".to_string(), |_| {
+    
   }).ok();
   app.add_menu_separator().ok();
+  app.add_menu_item(&"Open Settings".to_string(), |_window| {
+      open_settings();
+  }).ok();
   app.add_menu_item(&"Quit".to_string(), |window| {
       window.quit();
   }).ok();
-  println!("Waiting on message!");
+  println!("Beginning event loop...");
   app.wait_for_message();
+}
+
+fn open_settings() {
+  println!("Opening settings...");
 }
 
