@@ -11,4 +11,6 @@ orbtk = { git = "https://gitlab.redox-os.org/redox-os/orbtk.git" }
 
 [target."cfg(target_family = \"linux\")".dependencies]
 mktemp-rs = "0.2.0"
+winapi = { version = "*", features = ["winuser","wincon","shellapi"] }
+
 
