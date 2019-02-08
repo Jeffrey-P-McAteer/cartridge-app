@@ -54,6 +54,8 @@ pub fn make_tray(icon_path: String) {
   // w.set_tooltip(&"Whatever".to_string());
   if icon_path.len() > 1 {
     app.set_icon_from_file(&icon_path).ok();
+    #[cfg(target_family = "windows")]
+    app.set_icon_from_resource(&icon_path).ok();
   }
   app.add_menu_item(&"Cartridge App".to_string(), |_| {
     
