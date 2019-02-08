@@ -1,44 +1,28 @@
 
 extern crate systray;
+
+#[cfg(target_family = "unix")]
 extern crate mktemp;
 
-use std::io::prelude::*;
+#[cfg(target_family = "unix")]
+mod nixmain;
+
+#[cfg(target_family = "windows")]
+mod winmain;
 
 fn main() {
-  let icon_tmp_f = extract_icon();
-  match icon_tmp_f {
-    Some(icon_tmp_f) => {
-      make_tray( format!("{}", icon_tmp_f.path()) );
-    }
-    None => {
-      make_tray( "".to_string() );
-    }
-  }
-  
+  #[cfg(target_family = "unix")]
+  nixmain::os_main();
+  #[cfg(target_family = "windows")]
+  winmain::os_main();
 }
 
-// returns full path to icon
-fn extract_icon() -> Option<mktemp::TempFile> {
-  let icon_bytes = include_bytes!("../icon.png");
-  match mktemp::TempFile::new("icon", ".png") {
-    Ok(mut temp_file) => {
-      match temp_file.inner().write_all(icon_bytes) {
-        Ok(_) => { }
-        Err(e) => {
-          println!("{}", e);
-          return None;
-        }
-      }
-      return Some(temp_file);
-    }
-    Err(e) => {
-      println!("{}", e);
-      return None;
-    }
-  }
+pub fn open_settings() {
+  println!("Opening settings...");
 }
 
-fn make_tray(icon_path: String) {
+
+pub fn make_tray(icon_path: String) {
   println!("icon_path={}", icon_path);
   let mut app;
   match systray::Application::new() {
@@ -55,7 +39,7 @@ fn make_tray(icon_path: String) {
   }).ok();
   app.add_menu_separator().ok();
   app.add_menu_item(&"Open Settings".to_string(), |_window| {
-      open_settings();
+      crate::open_settings();
   }).ok();
   app.add_menu_item(&"Quit".to_string(), |window| {
       window.quit();
@@ -64,7 +48,5 @@ fn make_tray(icon_path: String) {
   app.wait_for_message();
 }
 
-fn open_settings() {
-  println!("Opening settings...");
-}
+
 
