@@ -6,6 +6,9 @@ edition = "2018"
 
 [dependencies]
 systray = "0.3.0"
-mktemp-rs = "0.2.0"
 #orbtk = "0.2.27"
 orbtk = { git = "https://gitlab.redox-os.org/redox-os/orbtk.git" }
+
+[target."cfg(target_family = \"windows\")".dependencies]
+mktemp-rs = "0.2.0"
+
