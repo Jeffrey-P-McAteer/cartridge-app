@@ -35,7 +35,7 @@ else:
   sys.exit(2)
 
 if __name__ == '__main__':
-  if socket.gethostname() == "azure-angel":
+  if socket.gethostname() == "azure-angel" and "linux" in sys.platform:
     # Jeffrey's laptop, let's boost CPU because I can't really use an alias here
     print("Detected Jeffrey's laptop, boosting CPU before compile...")
     subprocess.check_output(["set-cpu", "game"])
