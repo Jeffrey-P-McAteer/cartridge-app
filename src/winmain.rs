@@ -7,7 +7,7 @@ pub fn os_main() {
   {
     let mut file = File::create("SDL2.dll").expect("Could not create SDL2.dll");
     // Write a slice of bytes to the file
-    match file.write_all(include_bytes!("SDL2.dll")) {
+    match file.write_all(include_bytes!("../SDL2.dll")) {
       Ok(_) => { }
       Err(e) => {
         println!("{}", e);
@@ -20,7 +20,7 @@ pub fn os_main() {
   {
     let mut file = File::create("icon.png").expect("Could not create icon.png");
     // Write a slice of bytes to the file
-    match file.write_all(include_bytes!("icon.png")) {
+    match file.write_all(include_bytes!("../icon.png")) {
       Ok(_) => { }
       Err(e) => {
         println!("{}", e);
