@@ -18,13 +18,21 @@ def assume_exists(whatis: str, path: str):
 
 APP_NAME = "cartridge_app"
 
-WIN_CROSS_TARGETS = [
-  "x86_64-pc-windows-gnu",
-]
-
-LINUX_CARGO_TARGETS = [
-  "x86_64-unknown-linux-gnu",
-]
+if "linux" in sys.platform:
+  WIN_CROSS_TARGETS = [
+    #"x86_64-pc-windows-gnu", # Cross-compiling with the SDL2 dependency is non-trivial
+  ]
+  NATIVE_CARGO_TARGETS = [
+    "x86_64-unknown-linux-gnu",
+  ]
+elif "win" in sys.platform:
+  WIN_CROSS_TARGETS = [ ]
+  NATIVE_CARGO_TARGETS = [
+    "x86_64-pc-windows-gnu",
+  ]
+else:
+  print("Error unsupported build OS")
+  sys.exit(2)
 
 if __name__ == '__main__':
   if socket.gethostname() == "azure-angel":
@@ -41,7 +49,7 @@ if __name__ == '__main__':
     subprocess.call(["cross", "build", "--release", "--target", tgt])
     assume_exists("Native binary", "./target/{}/release/{}.exe".format(tgt, APP_NAME))
     
-  for tgt in LINUX_CARGO_TARGETS:
+  for tgt in NATIVE_CARGO_TARGETS:
     print("Compiling shared library and binary for {}".format(tgt))
     subprocess.call(["cargo", "build", "--release", "--target", tgt])
     assume_exists("Native binary", "./target/{}/release/{}".format(tgt, APP_NAME))
@@ -58,7 +66,7 @@ if __name__ == '__main__':
         "./target/{}/release/{}.exe".format(tgt, APP_NAME),
         "cs:./secure_html/"+APP_NAME+"/"+APP_NAME+"-{}.exe".format(tgt)
       ])
-    for tgt in LINUX_CARGO_TARGETS:
+    for tgt in NATIVE_CARGO_TARGETS:
       subprocess.call(["scp",
         "./target/{}/release/{}".format(tgt, APP_NAME),
         "cs:./secure_html/"+APP_NAME+"/"+APP_NAME+"-{}".format(tgt)
