@@ -114,7 +114,7 @@ pub fn open_settings() {
         Theme::create()
           .extension_css(r#"
 * {
-    font-size: 24;
+    font-size: 56;
 }
 
 lynch {
