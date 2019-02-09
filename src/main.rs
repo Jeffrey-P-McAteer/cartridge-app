@@ -43,44 +43,25 @@ impl Widget for MainView {
                     .columns(
                         Columns::create()
                             .column("*")
-                            .column("Auto")
+                            .column("Auto") // Column::create().width(ColumnWidth::Auto).build()
                             .column(50.0)
                             .build(),
                     )
-                    .rows(Rows::create().row("*").row("*").build())
+                    .rows(
+                        Rows::create()
+                          .row(Row::create().height( RowHeight::Height(56.0) ).build()) 
+                          .row("*")
+                          .build()
+                    )
                     .child(
                         Grid::create()
-                            .selector("lynch")
-                            .margin((10.0, 0.0, 0.0, 4.0))
+                            .selector("navbar")
+                            .margin((0.0, 0.0, 0.0, 5.0))
                             .attach_property(GridColumn(0))
+                            .attach_property(GridRow(0))
                             .child(
                                 TextBlock::create()
-                                    .text("(0,0)")
-                                    .horizontal_alignment("Center")
-                                    .vertical_alignment("Center"),
-                            ),
-                    )
-                    .child(
-                        Grid::create()
-                            .selector("bluebayoux")
-                            .margin(10.0)
-                            .constraint(Constraint::create().width(150.0).build())
-                            .attach_property(GridColumn(1))
-                            .child(
-                                TextBlock::create()
-                                    .text("(1,0)")
-                                    .horizontal_alignment("Center")
-                                    .vertical_alignment("Center"),
-                            ),
-                    )
-                    .child(
-                        Grid::create()
-                            .selector("linkwater")
-                            .attach_property(GridColumn(2))
-                            .child(
-                                TextBlock::create()
-                                    .text("(2,0)")
-                                    .selector("linkwater")
+                                    .text("Cartridge App Settings")
                                     .horizontal_alignment("Center")
                                     .vertical_alignment("Center"),
                             ),
