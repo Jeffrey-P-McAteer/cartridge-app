@@ -6,9 +6,7 @@ edition = "2018"
 
 [dependencies]
 systray = "0.3.0"
-#orbtk = "0.2.27"
-orbtk = { git = "https://gitlab.redox-os.org/redox-os/orbtk.git" }
-
+piston_window = "0.89.0"
 winapi = { version = "*", features = ["winuser","wincon","shellapi"] }
 
 [target."cfg(target_os = \"linux\")".dependencies]

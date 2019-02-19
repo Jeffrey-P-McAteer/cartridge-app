@@ -2,18 +2,18 @@
 
 extern crate systray;
 
-extern crate orbtk;
-
 #[cfg(target_family = "unix")]
 extern crate mktemp;
 
+extern crate piston_window;
+
+use piston_window::*;
+
 use std::env;
-
-#[cfg(target_family = "unix")]
-mod nixmain;
-
-#[cfg(target_family = "windows")]
-mod winmain;
+use std::io::Write;
+use std::fs::File;
+use std::io::prelude::*;
+use std::path::Path;
 
 fn main() {
   if let Some(arg1) = env::args().nth(1) {
@@ -22,106 +22,82 @@ fn main() {
       return;
     }
   }
-  // Launch System Tray
-  #[cfg(target_family = "unix")]
-  nixmain::os_main();
-  #[cfg(target_family = "windows")]
-  winmain::os_main();
+  os_main();
 }
 
-
-
-use orbtk::*;
-struct MainView;
-impl Widget for MainView {
-    type Template = orbtk::widget::Template;
-    fn create() -> Self::Template {
-        Template::default()
-          .parent_type(orbtk::ParentType::Multi) // we hold multiple children
-          .child(
-            Grid::create()
-                    .columns(
-                        Columns::create()
-                            .column("*")
-                            .column("Auto") // Column::create().width(ColumnWidth::Auto).build()
-                            .column(50.0)
-                            .build(),
-                    )
-                    .rows(
-                        Rows::create()
-                          .row(Row::create().height( RowHeight::Height(56.0) ).build()) 
-                          .row("*")
-                          .build()
-                    )
-                    .child(
-                        Grid::create()
-                            .selector("navbar")
-                            .margin((0.0, 0.0, 0.0, 5.0))
-                            .attach_property(GridColumn(0))
-                            .attach_property(GridRow(0))
-                            .child(
-                                TextBlock::create()
-                                    .text("Cartridge App Settings")
-                                    .horizontal_alignment("Center")
-                                    .vertical_alignment("Center"),
-                            ),
-                    )
-                    .child(
-                        Grid::create()
-                            .selector("goldendream")
-                            .attach_property(GridColumn(0))
-                            .attach_property(GridRow(1))
-                            .attach_property(ColumnSpan(3))
-                            .child(
-                                TextBlock::create()
-                                    .text("(0,1) - ColumnSpan 3")
-                                    .selector("goldendream")
-                                    .horizontal_alignment(HorizontalAlignment(Alignment::Center))
-                                    .vertical_alignment(VerticalAlignment(Alignment::Center)),
-                            ),
-                    ),
-          )
+#[cfg(target_family = "unix")]
+fn os_main() {
+  let icon_tmp_f = extract_icon();
+  match icon_tmp_f {
+    Some(icon_tmp_f) => {
+      make_tray( format!("{}", icon_tmp_f.path()) );
     }
+    None => {
+      make_tray( "".to_string() );
+    }
+  }
 }
+
+
+// returns full path to icon
+#[cfg(target_family = "unix")]
+fn extract_icon() -> Option<mktemp::TempFile> {
+  let icon_bytes = include_bytes!("../icon.png");
+  match mktemp::TempFile::new("icon", ".png") {
+    Ok(mut temp_file) => {
+      match temp_file.inner().write_all(icon_bytes) {
+        Ok(_) => { }
+        Err(e) => {
+          println!("{}", e);
+          return None;
+        }
+      }
+      return Some(temp_file);
+    }
+    Err(e) => {
+      println!("{}", e);
+      return None;
+    }
+  }
+}
+
+
+#[cfg(target_family = "windows")]
+fn os_main() {
+  // Windows doesn't exactly have a stable temp file API
+  // and I'm not going to invent one, we'll just dump the icon wherever we currently are.
+  if ! Path::new("icon.png").exists() {
+    let mut file = File::create("icon.png").expect("Could not create icon.png");
+    // Write a slice of bytes to the file
+    match file.write_all(include_bytes!("../icon.png")) {
+      Ok(_) => { }
+      Err(e) => {
+        println!("{}", e);
+      }
+    }
+  }
+  make_tray( "icon.png".to_string() );
+}
+
 pub fn open_settings() {
   println!("Opening settings...");
-  let mut application = Application::default();
-  application
-      .create_window()
-      .bounds((100.0, 100.0, 800.0, 600.0))
-      .title("Cartridge App Settings")
-      .root(MainView::create())
-      .theme(
-        Theme::create()
-          .extension_css(r#"
-* {
-    font-size: 56;
-}
-
-lynch {
-    background: #647b91;
-}
-
-bluebayoux {
-    background: #516475;
-}
-
-linkwater {
-    background: #dfebf5;
-    color: #3b434a;
-}
-
-goldendream {
-    background: #efd035;
-    color: #3b434a;
-}
-
-"#)
-          .build(),
-      )
-      //.resizable(true) // when resize==false forces floating in i3
-      .build();
-  application.run();
+  let mut window: PistonWindow = PistonWindow::new(
+        OpenGL::V3_3,
+        0,
+        WindowSettings::new("Cartridge App Settings", [640, 480])
+            .opengl(OpenGL::V3_3)
+            //.srgb(false)
+            .build()
+            .unwrap(),
+    );
+    while let Some(e) = window.next() {
+        window.draw_2d(&e, |c, g| {
+            clear([1.0; 4], g);
+            rectangle([1.0, 0.0, 0.0, 1.0], // red
+                      [0.0, 0.0, 100.0, 100.0],
+                      c.transform, g);
+        });
+    }
 }
 
 
