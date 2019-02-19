@@ -20,7 +20,7 @@ APP_NAME = "cartridge_app"
 
 if "linux" in sys.platform:
   WIN_CROSS_TARGETS = [
-    #"x86_64-pc-windows-gnu", # Cross-compiling with the SDL2 dependency is non-trivial
+    "x86_64-pc-windows-gnu",
   ]
   NATIVE_CARGO_TARGETS = [
     "x86_64-unknown-linux-gnu",
