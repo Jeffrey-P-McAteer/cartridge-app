@@ -16,6 +16,7 @@ use std::io::Write;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
+use std::thread;
 
 fn main() {
   if let Some(arg1) = env::args().nth(1) {
@@ -83,10 +84,13 @@ fn os_main() {
 
 pub fn open_settings() {
   println!("Opening settings...");
-  let mut gui = GuiObject::new();
-  while gui.handle_winit_events() != false {
-      gui.draw();
-  }
+  thread::spawn(move || {
+    let mut gui = GuiObject::new();
+    while gui.handle_winit_events() != false {
+        gui.draw();
+    }
+    println!("Done with GUI!");
+  });
 }
 
 
@@ -131,12 +135,12 @@ widget_ids! {
 /// renderer: Interface between conrod's Primitives && glium's "Surface"
 /// image_map should contain all images widgets. None here.
 struct GuiObject {
-    events_loop:    glium::glutin::EventsLoop,
-    display:        glium::Display,
-    ui:             conrod::Ui,
-    ids:            Ids,
-    renderer:       conrod::backend::glium::Renderer,
-    image_map:      conrod::image::Map<glium::texture::Texture2d>,
+  pub events_loop:    glium::glutin::EventsLoop,
+  pub display:        glium::Display,
+  pub ui:             conrod::Ui,
+  pub ids:            Ids,
+  pub renderer:       conrod::backend::glium::Renderer,
+  pub image_map:      conrod::image::Map<glium::texture::Texture2d>,
 }
 
 impl GuiObject {
@@ -153,9 +157,9 @@ impl GuiObject {
         let display = glium::Display::new(window, context, &events_loop).unwrap();
         let mut ui = conrod::UiBuilder::new([WIDTH as f64, HEIGHT as f64]).build();
         let ids = Ids::new(ui.widget_id_generator());
-        //const FONT_PATH: &'static str =
-        //    concat!(env!("CARGO_MANIFEST_DIR"), "/assets/fonts/NotoSans/NotoSans-Regular.ttf");
-        //ui.fonts.insert_from_file(FONT_PATH).unwrap();
+        const FONT_PATH: &'static str =
+           concat!(env!("CARGO_MANIFEST_DIR"), "/assets/ttf/Hack-Regular.ttf");
+        ui.fonts.insert_from_file(FONT_PATH).unwrap();
         let renderer = conrod::backend::glium::Renderer::new(&display).unwrap();
         let image_map = conrod::image::Map::<glium::texture::Texture2d>::new();
 
@@ -193,7 +197,11 @@ impl GuiObject {
                             },
                             ..
                         } => return false,
-                    _ => (),
+                    glium::glutin::WindowEvent::ReceivedCharacter('q') => return false,
+                    evt => {
+                      println!("evt={:?}", evt);
+                      ()
+                    },
                 }
             }
             _ => (),
