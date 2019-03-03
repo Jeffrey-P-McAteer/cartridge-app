@@ -18,10 +18,12 @@ use std::io::prelude::*;
 use std::path::Path;
 use std::thread;
 
+mod shims;
+
 fn main() {
   if let Some(arg1) = env::args().nth(1) {
     if arg1 == "settings" {
-      open_settings();
+      draw_settings_win();
       return;
     }
   }
@@ -83,16 +85,28 @@ fn os_main() {
 }
 
 pub fn open_settings() {
+  use std::process::Command;
   println!("Opening settings...");
   thread::spawn(move || {
-    let mut gui = GuiObject::new();
-    while gui.handle_winit_events() != false {
-        gui.draw();
-    }
+    let self_exe_path = shims::get_path_to_self_exe();
+    println!("self_exe_path={}", self_exe_path);
+    Command::new(self_exe_path)
+        .arg("settings")
+        .output()
+        .expect("Failed to execute self");
     println!("Done with GUI!");
+    
+    // TODO read in settings from ~/.c
+    
   });
 }
 
+pub fn draw_settings_win() {
+  let mut gui = GuiObject::new();
+  while gui.handle_winit_events() != false {
+      gui.draw();
+  }
+}
 
 pub fn make_tray(icon_path: String) {
   println!("icon_path={}", icon_path);
