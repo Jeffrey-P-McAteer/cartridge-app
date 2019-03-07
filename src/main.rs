@@ -1,4 +1,4 @@
-#![windows_subsystem = "windows"]
+//#![windows_subsystem = "windows"]
 
 //#[macro_use] extern crate conrod;
 // https://github.com/DarpGosaNiled/conrod_hello_world/blob/master/src/main.rs
@@ -79,10 +79,10 @@ fn extract_icon() -> Option<mktemp::TempFile> {
 fn os_main() {
   // Windows doesn't exactly have a stable temp file API
   // and I'm not going to invent one, we'll just dump the icon wherever we currently are.
-  if ! Path::new("icon.png").exists() {
-    let mut file = File::create("icon.png").expect("Could not create icon.png");
+  if ! Path::new("icon.ico").exists() {
+    let mut file = File::create("icon.ico").expect("Could not create icon.ico");
     // Write a slice of bytes to the file
-    match file.write_all(include_bytes!("../icon.png")) {
+    match file.write_all(include_bytes!("../icon.ico")) {
       Ok(_) => { }
       Err(e) => {
         println!("{}", e);
@@ -111,7 +111,17 @@ fn os_main() {
       }
     }
   }
-  gui::make_tray( "icon.png".to_string() );
+  match env::current_dir() {
+    Ok(dir_as_buff) => {
+      let dir_as_s = dir_as_buff.as_path().to_string_lossy().to_string();
+      let abs_icon_path = format!("{}\\icon.ico", dir_as_s);
+      gui::make_tray(abs_icon_path);
+    }
+    Err(e) => {
+      println!("{}", e);
+      gui::make_tray( "icon.ico".to_string() );
+    }
+  }
 }
 
 pub fn open_settings() {
