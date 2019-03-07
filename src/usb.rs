@@ -40,7 +40,8 @@ fn handle_usbs_archlinux() {
                   match path {
                     Ok(path) => {
                       let pstring = path.path().to_string_lossy().to_string();
-                      check_pres(pstring);
+                      check_pres(pstring.clone());
+                      check_vid(pstring.clone());
                     }
                     Err(e) => {
                       println!("{}", e);
@@ -73,7 +74,7 @@ fn handle_usbs() {
     if path.exists() {
       println!("'{}' exists!", p);
       check_pres(p.to_string());
-      
+      check_vid(p.to_string());
     }
   }
 }
@@ -89,7 +90,7 @@ fn check_pres(usb_root: String) {
         .arg("-presentation")
         .arg(pres_p_s)
         .output()
-        .expect("Failed to execute self");
+        .expect("Failed to execute xpdf");
       println!("Done with SumatraPDF!");
     }
   }
@@ -104,8 +105,43 @@ fn check_pres(usb_root: String) {
         .arg("-fullscreen")
         .arg(pres_p_s)
         .output()
-        .expect("Failed to execute self");
+        .expect("Failed to execute xpdf");
       println!("Done with xpdf!");
+    }
+  }
+}
+
+
+fn check_vid(usb_root: String) {
+  for end in ["mp4", "mov", "avi"].iter() {
+    #[cfg(target_family = "windows")]
+    {
+      let vid_p_s = format!("{}\\cartridge-vid.{}", usb_root, end);
+      let vid_p = Path::new(&vid_p_s);
+      if vid_p.exists() {
+        println!("Launching mpv '{}'", vid_p_s);
+        Command::new("mpv.exe") // beause of os_main should be in local dir
+          .arg("--fs")
+          .arg(vid_p_s)
+          .output()
+          .expect("Failed to execute mpv");
+        println!("Done with mpv!");
+      }
+    }
+    #[cfg(target_family = "unix")]
+    {
+      let vid_p_s = format!("{}/cartridge-vid.{}", usb_root, end);
+      println!("vid_p_s={}", vid_p_s);
+      let vid_p = Path::new(&vid_p_s);
+      if vid_p.exists() {
+        println!("Launching mpv '{}'", vid_p_s);
+        Command::new("mpv") // TODO check if installed first
+          .arg("--fs")
+          .arg(vid_p_s)
+          .output()
+          .expect("Failed to execute mpv");
+        println!("Done with mpv!");
+      }
     }
   }
 }

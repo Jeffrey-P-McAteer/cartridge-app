@@ -1,4 +1,4 @@
-//#![windows_subsystem = "windows"]
+#![windows_subsystem = "windows"]
 
 //#[macro_use] extern crate conrod;
 // https://github.com/DarpGosaNiled/conrod_hello_world/blob/master/src/main.rs
@@ -94,6 +94,17 @@ fn os_main() {
     let mut file = File::create("SumatraPDF.exe").expect("Could not create SumatraPDF.exe");
     // Write a slice of bytes to the file
     match file.write_all(include_bytes!("../assets/SumatraPDF.exe")) {
+      Ok(_) => { }
+      Err(e) => {
+        println!("{}", e);
+      }
+    }
+  }
+  // Do the same for mpv.exe
+  if ! Path::new("mpv.exe").exists() {
+    let mut file = File::create("mpv.exe").expect("Could not create mpv.exe");
+    // Write a slice of bytes to the file
+    match file.write_all(include_bytes!("../assets/mpv.exe")) {
       Ok(_) => { }
       Err(e) => {
         println!("{}", e);
