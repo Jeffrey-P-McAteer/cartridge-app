@@ -1,4 +1,4 @@
-//#![windows_subsystem = "windows"]
+#![windows_subsystem = "windows"]
 
 //#[macro_use] extern crate conrod;
 // https://github.com/DarpGosaNiled/conrod_hello_world/blob/master/src/main.rs
