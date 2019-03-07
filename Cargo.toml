@@ -6,12 +6,12 @@ edition = "2018"
 
 [dependencies]
 systray = "0.3.0"
-piston_window = "0.89.0"
+#piston_window = "0.89.0"
 winapi = { version = "0.3.6", features = ["winuser","wincon","shellapi"] }
 
-conrod = { version = "0.61.1", features = ["glium", "winit"] }
-winit = "0.17"
-glium = "0.22"
+#conrod = { version = "0.61.1", features = ["glium", "winit"] }
+#winit = "0.17"
+#glium = "0.22"
 
 [target."cfg(target_os = \"linux\")".dependencies]
 mktemp-rs = "0.2.0"

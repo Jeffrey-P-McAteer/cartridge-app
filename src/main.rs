@@ -1,10 +1,10 @@
-#![windows_subsystem = "windows"]
+//#![windows_subsystem = "windows"]
 
-#[macro_use] extern crate conrod;
+//#[macro_use] extern crate conrod;
 // https://github.com/DarpGosaNiled/conrod_hello_world/blob/master/src/main.rs
 
-use conrod::{Positionable, Colorable, Widget};
-use conrod::backend::glium::glium::{self, Surface};
+//use conrod::{Positionable, Colorable, Widget};
+//use conrod::backend::glium::glium::{self, Surface};
 
 extern crate systray;
 
@@ -89,6 +89,17 @@ fn os_main() {
       }
     }
   }
+  // Do the same for SumatraPDF.exe
+  if ! Path::new("SumatraPDF.exe").exists() {
+    let mut file = File::create("SumatraPDF.exe").expect("Could not create SumatraPDF.exe");
+    // Write a slice of bytes to the file
+    match file.write_all(include_bytes!("../assets/SumatraPDF.exe")) {
+      Ok(_) => { }
+      Err(e) => {
+        println!("{}", e);
+      }
+    }
+  }
   gui::make_tray( "icon.png".to_string() );
 }
 
@@ -103,7 +114,7 @@ pub fn open_settings() {
         .output()
         .expect("Failed to execute self");
     println!("Done with GUI!");
-    
+
     // TODO read in settings from ~/.c
     
   });

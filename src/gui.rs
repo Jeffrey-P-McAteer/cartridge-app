@@ -2,10 +2,11 @@
 use crate::*;
 
 pub fn draw_settings_win() {
-  let mut gui = GuiObject::new();
-  while gui.handle_winit_events() != false {
-      gui.draw();
-  }
+  println!("draw_settings_win commented to save on compile time");
+  // let mut gui = GuiObject::new();
+  // while gui.handle_winit_events() != false {
+  //     gui.draw();
+  // }
 }
 
 pub fn make_tray(icon_path: String) {
@@ -36,7 +37,7 @@ pub fn make_tray(icon_path: String) {
   app.wait_for_message();
 }
 
-
+/*
 widget_ids! {
     pub struct Ids {
         text,
@@ -164,3 +165,4 @@ impl GuiObject {
         }
     }
 }
+*/
