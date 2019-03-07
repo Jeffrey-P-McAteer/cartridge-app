@@ -4,6 +4,10 @@
 A simple application which enables the core feature of Cartridge OS
 on an existing system (linux and windows 10 supported)
 
+# Built binaries
+
+Linux and windows x64 binaries are available at https://www.cs.odu.edu/~jmcateer/cartridge_app/
+
 # Compiling on Linux
 
 ```bash
