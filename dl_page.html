@@ -13,6 +13,32 @@
     <p>
       Download <a href="cartridge_app-x86_64-unknown-linux-gnu">cartridge_app-x86_64-unknown-linux-gnu</a>
     </p>
+    <p>
+      <h2>Usage</h2>
+      Double-click the executable.<br>
+      There should now be an icon in your taskbar like the one in the below screenshot:
+      
+      <img src="screenshot.jpg" />
+      
+      Now you can plug in any USB drive containing one of the following files:
+      
+      <ul>
+        <li>cartridge-pres.pdf</li>
+        <li>cartridge-vid.mp4</li>
+        <li>cartridge-vid.mov</li>
+        <li>cartridge-vid.avi</li>
+      </ul>
+      
+      These filenames are case-sensitive. The first one found will be opened in
+      an appropriate application, and launched using fullscreen parameters.
+      <br>
+      On windows the application unpacks a copy of `mpv.exe` for videos and `SumatraPDF.exe` for presentations.
+      <br>
+      On linux systems the application assumes `mpv` and `xpdf` are installed. Currently we do not check
+      that assumption, if you would like to do that send a pull request to me at 
+      <a href="https://github.com/Jeffrey-P-McAteer/cartridge-app">https://github.com/Jeffrey-P-McAteer/cartridge-app</a>.
+      
+    </p>
   </body>
 </html>
 

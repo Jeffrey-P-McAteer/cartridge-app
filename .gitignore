@@ -2,3 +2,4 @@
 **/*.rs.bk
 icon.png
 *.dll
+Cargo.lock
