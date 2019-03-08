@@ -28,6 +28,13 @@ cargo build --release --target x86_64-pc-windows-gnu
 
 ```
 
+# Cross compiling
+
+The `build.py` script is setup to do a cross-platform build
+windows and linux binaries from linux hosts.
+
+This process requires `rsync`, `cargo-cross`, and `docker` installed.
+
 # Historical Notice
 
 This project has gone through a lot of thrashing about messing with different
