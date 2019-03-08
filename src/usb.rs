@@ -87,6 +87,8 @@ fn check_pres(usb_root: String) {
     if pres_p.exists() {
       println!("Launching SumatraPDF '{}'", pres_p_s);
       let mut child = Command::new("SumatraPDF.exe") // beause of os_main should be in local dir
+        .arg("-page")
+        .arg("1")
         .arg("-presentation")
         .arg(pres_p_s.clone())
         .spawn()
