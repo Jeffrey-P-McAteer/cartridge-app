@@ -128,11 +128,15 @@ fn check_vid(usb_root: String) {
       let vid_p = Path::new(&vid_p_s);
       if vid_p.exists() {
         println!("Launching mpv '{}'", vid_p_s);
-        Command::new("mpv.exe") // beause of os_main should be in local dir
+        let mut child = Command::new("mpv.exe") // beause of os_main should be in local dir
           .arg("--fs")
-          .arg(vid_p_s)
-          .output()
+          .arg(vid_p_s.clone())
+          .spawn()
           .expect("Failed to execute mpv");
+          
+        // Loops
+        kill_child_when_file_moves(&mut child, vid_p, "mpv");
+        
         println!("Done with mpv!");
       }
     }
@@ -143,11 +147,14 @@ fn check_vid(usb_root: String) {
       let vid_p = Path::new(&vid_p_s);
       if vid_p.exists() {
         println!("Launching mpv '{}'", vid_p_s);
-        Command::new("mpv") // TODO check if installed first
+        let mut child = Command::new("mpv") // TODO check if installed first
           .arg("--fs")
-          .arg(vid_p_s)
-          .output()
+          .arg(vid_p_s.clone())
+          .spawn()
           .expect("Failed to execute mpv");
+        
+        kill_child_when_file_moves(&mut child, vid_p, "mpv");
+        
         println!("Done with mpv!");
       }
     }
