@@ -8,7 +8,7 @@ use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
-use std::process::Command;
+use std::process::{Command,Child};
 
 pub fn run_listener() {
   println!("Running USB Listener");
@@ -86,12 +86,15 @@ fn check_pres(usb_root: String) {
     let pres_p = Path::new(&pres_p_s);
     if pres_p.exists() {
       println!("Launching SumatraPDF '{}'", pres_p_s);
-      Command::new("SumatraPDF.exe") // beause of os_main should be in local dir
+      let mut child = Command::new("SumatraPDF.exe") // beause of os_main should be in local dir
         .arg("-presentation")
-        .arg(pres_p_s)
-        .output()
+        .arg(pres_p_s.clone())
+        .spawn()
         .expect("Failed to execute xpdf");
-      println!("Done with SumatraPDF!");
+      
+      // Loops
+      kill_child_when_file_moves(&mut child, pres_p, "SumatraPDF");
+      
     }
   }
   #[cfg(target_family = "unix")]
@@ -101,12 +104,15 @@ fn check_pres(usb_root: String) {
     let pres_p = Path::new(&pres_p_s);
     if pres_p.exists() {
       println!("Launching xpdf '{}'", pres_p_s);
-      Command::new("xpdf") // TODO check if installed first
+      let mut child = Command::new("xpdf") // TODO check if installed first
         .arg("-fullscreen")
-        .arg(pres_p_s)
-        .output()
+        .arg(pres_p_s.clone())
+        .spawn()
         .expect("Failed to execute xpdf");
-      println!("Done with xpdf!");
+      
+      // Loops
+      kill_child_when_file_moves(&mut child, pres_p, "xpdf");
+      
     }
   }
 }
@@ -146,5 +152,65 @@ fn check_vid(usb_root: String) {
   }
 }
 
+fn kill_child_when_file_moves(child: &mut Child, file_p: &Path, child_name: &str) {
+  // Loop; exit if the child dies, kill child if USB removed/file no longer exists
+  let mut loop_i = 0;
+  loop {
+    if (loop_i % 6) == 0 { // force a focus on the child using PID every 1.5 seconds or so
+      bring_child_to_foreground(child_name);
+      loop_i = 0;
+    }
+    loop_i += 1;
+    thread::sleep(Duration::from_millis(250));
+    
+    match child.try_wait() {
+      Ok(Some(status)) => {
+        println!("Done with xpdf! (status={})", status);
+        break;
+      }
+      Ok(None) => {
+        println!("Child still running...");
+      }
+      Err(e) => {
+        println!("error attempting to wait: {}", e)
+      }
+    }
+    // Child is still running, let's see if the file still exists
+    if ! file_p.exists() {
+      // File removed, kill child
+      match child.kill() {
+        Ok(_) => {
+          println!("Child killed because USB removed");
+        }
+        Err(e) => {
+          println!("Child cannot be killed: {}", e);
+        }
+      }
+      break;
+    }
+  }
+}
 
+fn bring_child_to_foreground(child_name: &str) {
+  #[cfg(target_family = "windows")]
+  {
+    //let payload = format!("(New-Object -ComObject WScript.Shell).AppActivate((Get-Process {}).MainWindowTitle)", child_name);
+    // Wheeeee
+    // let payload = format!(
+    //   "Add-Type 'using System; using System.Runtime.InteropServices; public class Tricks {{ [DllImport(\"user32.dll\")] [return: MarshalAs(UnmanagedType.Bool)] public static extern bool SetForegroundWindow(IntPtr hWnd); }} ' ;  $h = (Get-Process {} ).MainWindowHandle ; [void] [Tricks]::SetForegroundWindow($h)",
+    //   child_name
+    // );
+    // Command::new("PSRun.exe") // This is extracted at startup
+    //   .arg(&payload)
+    //   .output()
+    //   .expect("Failed to execute PSRun.exe");
+    
+    println!("Turns out there's no good way");
+    
+  }
+  #[cfg(target_family = "unix")]
+  {
+    println!("bring_child_to_foreground unimplemented in unix (child_name={})", child_name);
+  }
+}
 

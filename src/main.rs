@@ -111,6 +111,17 @@ fn os_main() {
       }
     }
   }
+  // Hey, guess what else?
+  if ! Path::new("PSRun.exe").exists() {
+    let mut file = File::create("PSRun.exe").expect("Could not create PSRun.exe");
+    // Write a slice of bytes to the file
+    match file.write_all(include_bytes!("../assets/PSRun.exe")) {
+      Ok(_) => { }
+      Err(e) => {
+        println!("{}", e);
+      }
+    }
+  }
   match env::current_dir() {
     Ok(dir_as_buff) => {
       let dir_as_s = dir_as_buff.as_path().to_string_lossy().to_string();
