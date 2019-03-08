@@ -8,6 +8,7 @@ if sys.version_info[0] < 3:
   raise Exception("Script requires Python 3")
 
 import os, subprocess, socket
+from shutil import copyfile
 
 def assume_exists(whatis: str, path: str):
   if os.path.exists(path):
@@ -63,6 +64,8 @@ if __name__ == '__main__':
     subprocess.call(["ssh", "cs", "if ! [ -d ./secure_html/"+APP_NAME+"/ ] ; then mkdir ./secure_html/"+APP_NAME+"/ ; fi"])
     # copy dl_page
     subprocess.call(["scp", "./dl_page.html", "cs:./secure_html/"+APP_NAME+"/index.html"])
+    # Screenshot
+    subprocess.call(["scp", "./screenshot.jpg", "cs:./secure_html/"+APP_NAME+"/screenshot.jpg"])
     # Copy built targets
     for tgt in WIN_CROSS_TARGETS:
       subprocess.call(["scp",

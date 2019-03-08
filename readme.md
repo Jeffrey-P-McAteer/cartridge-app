@@ -28,4 +28,14 @@ cargo build --release --target x86_64-pc-windows-gnu
 
 ```
 
+# Historical Notice
+
+This project has gone through a lot of thrashing about messing with different
+styles of cross-platform compilation, GUI libraries, and even wandering into the
+abyss that is the win32 API.
+
+As a result this project is nowhere near idiomatic Rust code, and is very poorly designed.
+
+The majority of the code written has been removed, re-written, and then replaced again.
+
 
