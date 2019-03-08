@@ -41,15 +41,6 @@ if __name__ == '__main__':
     print("Detected Jeffrey's laptop, boosting CPU before compile...")
     subprocess.check_output(["set-cpu", "game"])
     
-  #print("Building native library and native binary...")
-  #subprocess.call(["cargo", "build", "--release"])
-  #assume_exists("Native binary", "./target/release/"+APP_NAME+"")
-  
-  for tgt in WIN_CROSS_TARGETS:
-    print("Compiling shared library and binary for {}".format(tgt))
-    subprocess.call(["cross", "build", "--release", "--target", tgt])
-    assume_exists("Native binary", "./target/{}/release/{}.exe".format(tgt, APP_NAME))
-    
   for tgt in NATIVE_CARGO_TARGETS:
     print("Compiling shared library and binary for {}".format(tgt))
     subprocess.call(["cargo", "build", "--release", "--target", tgt])
@@ -57,7 +48,26 @@ if __name__ == '__main__':
       assume_exists("Native binary", "./target/{}/release/{}".format(tgt, APP_NAME))
     else:
       assume_exists("Native binary", "./target/{}/release/{}.exe".format(tgt, APP_NAME))
+  
+  current_dir = os.getcwd()
+  # Copy our ./ src dir to ./target/win-clone/ for cache performance
+  os.system("rsync -vaz --exclude=target/ --exclude=.git/ ./ ./target/win-clone/")
+  
+  os.chdir("./target/win-clone/")
+  
+  for tgt in WIN_CROSS_TARGETS:
+    print("Compiling shared library and binary for {}".format(tgt))
+    subprocess.call(["cross", "build", "--release", "--target", tgt])
+    assume_exists("Native binary", "./target/{}/release/{}.exe".format(tgt, APP_NAME))
+    # Copy binary up to real repo
+    if not os.path.exists("../{}/release/".format(tgt)):
+      os.makedirs("../{}/release/".format(tgt))
+    copyfile("./target/{}/release/{}.exe".format(tgt, APP_NAME), "../{}/release/{}.exe".format(tgt, APP_NAME))
     
+  
+  # Move back
+  os.chdir(current_dir)
+  
   if socket.gethostname() == "azure-angel":
     print("Detected Jeffrey's laptop, pushing built artifacts to cs.odu.edu/~jmcateer/"+APP_NAME+"/")
     # check directory
