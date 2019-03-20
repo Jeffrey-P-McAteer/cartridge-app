@@ -157,20 +157,41 @@ fn check_pres(usb_root: String) {
   }
   #[cfg(target_family = "unix")]
   {
-    let pres_p_s = format!("{}/cartridge-pres.pdf", usb_root);
-    println!("pres_p_s={}", pres_p_s);
-    let pres_p = Path::new(&pres_p_s);
-    if pres_p.exists() {
-      println!("Launching xpdf '{}'", pres_p_s);
-      let mut child = Command::new("xpdf") // TODO check if installed first
-        .arg("-fullscreen")
-        .arg(pres_p_s.clone())
-        .spawn()
-        .expect("Failed to execute xpdf");
-      
-      // Loops
-      kill_child_when_file_moves(&mut child, pres_p, "xpdf");
-      
+    { // PDF
+      let pres_p_s = format!("{}/cartridge-pres.pdf", usb_root);
+      println!("pres_p_s={}", pres_p_s);
+      let pres_p = Path::new(&pres_p_s);
+      if pres_p.exists() {
+        println!("Launching xpdf '{}'", pres_p_s);
+        let mut child = Command::new("xpdf") // TODO check if installed first
+          .arg("-fullscreen")
+          .arg(pres_p_s.clone())
+          .spawn()
+          .expect("Failed to execute xpdf");
+        
+        // Loops
+        kill_child_when_file_moves(&mut child, pres_p, "xpdf");
+        
+      }
+    }
+    { // PPTX
+      let pres_p_s = format!("{}/cartridge-pres.pptx", usb_root);
+      println!("pres_p_s={}", pres_p_s);
+      let pres_p = Path::new(&pres_p_s);
+      if pres_p.exists() {
+        println!("Launching libreoffice --show '{}'", pres_p_s);
+        let mut child = Command::new("libreoffice") // TODO check if installed first
+          .arg("--invisible")
+          .arg("--norestore")
+          .arg("--show")
+          .arg(pres_p_s.clone())
+          .spawn()
+          .expect("Failed to execute libreoffice");
+        
+        // Loops, pkills soffice.bin
+        kill_child_when_file_moves(&mut child, pres_p, "soffice.bin");
+        
+      }
     }
   }
 }
@@ -230,7 +251,7 @@ fn kill_child_when_file_moves(child: &mut Child, file_p: &Path, child_name: &str
     
     match child.try_wait() {
       Ok(Some(status)) => {
-        println!("Done with xpdf! (status={})", status);
+        println!("Done with {}! (status={})", child_name, status);
         break;
       }
       Ok(None) => {
@@ -250,6 +271,15 @@ fn kill_child_when_file_moves(child: &mut Child, file_p: &Path, child_name: &str
         Err(e) => {
           println!("Child cannot be killed: {}", e);
         }
+      }
+      // We observe the above does not always kill procs;
+      // in particular libreoffice
+      #[cfg(target_family = "unix")]
+      {
+        Command::new("pkill") // TODO check if installed first
+          .arg(child_name.clone())
+          .spawn()
+          .expect("Failed to execute pkill");
       }
       break;
     }
