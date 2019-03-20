@@ -164,15 +164,15 @@ fn check_pres(usb_root: String) {
         let pres_pps = format!("{}\\cartridge-pres.pps", usb_root);
         match fs::copy(pres_p_s.clone(), pres_pps.clone()) {
           Ok(_) => {
-            println!("Launching default app for file '{}'", pres_p_s.clone());
-            let mut child = Command::new("cmd.exe") // beause of os_main should be in local dir
+            println!("Launching default app for file '{}'", pres_pps.clone());
+            let mut child = Command::new("cmd.exe")
               .arg("/C")
               .arg(pres_pps.clone())
               .spawn()
               .expect("Failed to execute default app");
             
             // Loops
-            kill_child_when_file_moves(&mut child, pres_p, "powerpoint");
+            kill_child_when_file_moves(&mut child, pres_p, "POWERPNT.EXE");
           }
           Err(e) => {
             println!("{}", e);
@@ -306,6 +306,16 @@ fn kill_child_when_file_moves(child: &mut Child, file_p: &Path, child_name: &str
           .arg(child_name.clone())
           .spawn()
           .expect("Failed to execute pkill");
+      }
+      // Likewise on windows with powerpoint.exe
+      #[cfg(target_family = "windows")]
+      {
+        Command::new("taskkill")
+          .arg("/F")
+          .arg("/IM")
+          .arg(child_name.clone())
+          .spawn()
+          .expect("Failed to execute taskkill");
       }
       break;
     }
