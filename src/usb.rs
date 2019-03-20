@@ -66,6 +66,12 @@ fn handle_usbs_dbus() -> bool {
   return false;
 }
 
+// Windows has no dbus; this is easier than refactoring run_listener
+#[cfg(target_family = "windows")]
+fn handle_usbs_dbus() -> bool {
+  return false;
+}
+
 #[cfg(target_family = "unix")]
 fn handle_usbs_archlinux() {
   match fs::read_dir("/run/media/") {
