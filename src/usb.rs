@@ -12,11 +12,14 @@ use std::process::{Command,Child};
 
 pub fn run_listener() {
   println!("Running USB Listener");
-  loop {
-    // Poll every 250 ms
-    thread::sleep(Duration::from_millis(250));
-    println!("Checking USB...");
-    handle_usbs();
+  let was_able_to_use_dbus = handle_usbs_dbus();
+  if ! was_able_to_use_dbus {
+    loop {
+      // Poll every 250 ms
+      thread::sleep(Duration::from_millis(250));
+      println!("Checking USB...");
+      handle_usbs();
+    }
   }
 }
 
@@ -24,6 +27,43 @@ pub fn run_listener() {
 fn handle_usbs() {
   handle_usbs_archlinux();
   // TODO
+}
+
+// This is more efficient than continuously polling
+// the expected mount path, but not all OSes will be
+// running DBUS
+#[cfg(target_family = "unix")]
+fn handle_usbs_dbus() -> bool {
+  match dbus::Connection::get_private(dbus::BusType::Session) {
+    Ok(c) => {
+      
+      // See https://dbus.freedesktop.org/doc/dbus-specification.html#message-bus-routing-match-rules
+      match c.add_match("type='signal',interface='org.gtk.Private.RemoteVolumeMonitor'") {
+        Ok(_) => {}
+        Err(e) => {
+          // Interface invalid or something
+          println!("{}", e);
+          return false;
+        }
+      }
+      
+      // TODO other matches for other OSes?
+      
+      // Pretent this is infinite
+      for _conn_item in c.iter(i32::max_value()) {
+        //println!("conn_item={:?}", conn_item);
+        // Sleep 25ms, Check USB
+        thread::sleep(Duration::from_millis(25));
+        // O(1), hits all USBs
+        handle_usbs();
+      }
+      return true;
+    }
+    Err(e) => {
+      println!("{}", e);
+    }
+  }
+  return false;
 }
 
 #[cfg(target_family = "unix")]

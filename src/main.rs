@@ -11,6 +11,9 @@ extern crate systray;
 #[cfg(target_family = "unix")]
 extern crate mktemp;
 
+#[cfg(target_family = "unix")]
+extern crate dbus;
+
 extern crate winapi;
 
 use std::env;

@@ -15,4 +15,5 @@ winapi = { version = "0.3.6", features = ["winuser","wincon","shellapi"] }
 
 [target."cfg(target_os = \"linux\")".dependencies]
 mktemp-rs = "0.2.0"
+dbus = "0.6.4"
 
