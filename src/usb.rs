@@ -171,6 +171,9 @@ fn check_pres(usb_root: String) {
               .spawn()
               .expect("Failed to execute default app");
             
+            // Sleep for 2.5 seconds first
+            thread::sleep(Duration::from_millis(2500));
+            
             // Loops
             kill_child_when_file_moves(&mut child, pres_p, "POWERPNT.EXE");
           }
