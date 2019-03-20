@@ -138,21 +138,47 @@ fn handle_usbs() {
 fn check_pres(usb_root: String) {
   #[cfg(target_family = "windows")]
   {
-    let pres_p_s = format!("{}\\cartridge-pres.pdf", usb_root);
-    let pres_p = Path::new(&pres_p_s);
-    if pres_p.exists() {
-      println!("Launching SumatraPDF '{}'", pres_p_s);
-      let mut child = Command::new("SumatraPDF.exe") // beause of os_main should be in local dir
-        .arg("-page")
-        .arg("1")
-        .arg("-presentation")
-        .arg(pres_p_s.clone())
-        .spawn()
-        .expect("Failed to execute xpdf");
-      
-      // Loops
-      kill_child_when_file_moves(&mut child, pres_p, "SumatraPDF");
-      
+    { // PDF
+      let pres_p_s = format!("{}\\cartridge-pres.pdf", usb_root);
+      let pres_p = Path::new(&pres_p_s);
+      if pres_p.exists() {
+        println!("Launching SumatraPDF '{}'", pres_p_s);
+        let mut child = Command::new("SumatraPDF.exe") // beause of os_main should be in local dir
+          .arg("-page")
+          .arg("1")
+          .arg("-presentation")
+          .arg(pres_p_s.clone())
+          .spawn()
+          .expect("Failed to execute xpdf");
+        
+        // Loops
+        kill_child_when_file_moves(&mut child, pres_p, "SumatraPDF");
+        
+      }
+    }
+    { // PPTX
+      let pres_p_s = format!("{}\\cartridge-pres.pptx", usb_root);
+      let pres_p = Path::new(&pres_p_s);
+      if pres_p.exists() {
+        // Copy it to a PPS file
+        let pres_pps = format!("{}\\cartridge-pres.pps", usb_root);
+        match fs::copy(pres_p_s.clone(), pres_pps.clone()) {
+          Ok(_) => {
+            println!("Launching default app for file '{}'", pres_p_s.clone());
+            let mut child = Command::new("cmd.exe") // beause of os_main should be in local dir
+              .arg("/C")
+              .arg(pres_pps.clone())
+              .spawn()
+              .expect("Failed to execute default app");
+            
+            // Loops
+            kill_child_when_file_moves(&mut child, pres_p, "powerpoint");
+          }
+          Err(e) => {
+            println!("{}", e);
+          }
+        }
+      }
     }
   }
   #[cfg(target_family = "unix")]
