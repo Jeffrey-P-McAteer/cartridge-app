@@ -9,6 +9,7 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 use std::process::{Command,Child};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub fn run_listener() {
   println!("Running USB Listener");
@@ -50,12 +51,21 @@ fn handle_usbs_dbus() -> bool {
       // TODO other matches for other OSes?
       
       // Pretent this is infinite
+      let mut last_handled_time = SystemTime::now();
       for _conn_item in c.iter(i32::max_value()) {
         //println!("conn_item={:?}", conn_item);
         // Sleep 25ms, Check USB
         thread::sleep(Duration::from_millis(25));
-        // O(1), hits all USBs
-        handle_usbs();
+        
+        let duration = SystemTime::now().duration_since(last_handled_time).expect("Time travel accidentially enabled");
+        // Only perform action if events are more than 2 seconds apart
+        if duration.as_secs() > 2 {
+          // O(1), hits all USBs
+          last_handled_time = SystemTime::now();
+          thread::spawn(move || {
+            handle_usbs();
+          });
+        }
       }
       return true;
     }
