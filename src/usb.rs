@@ -161,7 +161,34 @@ fn check_pres(usb_root: String) {
       let pres_p = Path::new(&pres_p_s);
       if pres_p.exists() {
         // Copy it to a PPS file
-        let pres_pps = format!("{}\\cartridge-pres.pps", usb_root);
+        let pres_pps = ".\\cartridge-pres.pps".to_string();
+        match fs::copy(pres_p_s.clone(), pres_pps.clone()) {
+          Ok(_) => {
+            println!("Launching default app for file '{}'", pres_pps.clone());
+            let mut child = Command::new("cmd.exe")
+              .arg("/C")
+              .arg(pres_pps.clone())
+              .spawn()
+              .expect("Failed to execute default app");
+            
+            // Sleep for 2.5 seconds first
+            thread::sleep(Duration::from_millis(2500));
+            
+            // Loops
+            kill_child_when_file_moves(&mut child, pres_p, "POWERPNT.EXE");
+          }
+          Err(e) => {
+            println!("{}", e);
+          }
+        }
+      }
+    }
+    { // PPT
+      let pres_p_s = format!("{}\\cartridge-pres.ppt", usb_root);
+      let pres_p = Path::new(&pres_p_s);
+      if pres_p.exists() {
+        // Copy it to a PPS file
+        let pres_pps = ".\\cartridge-pres.pps".to_string();
         match fs::copy(pres_p_s.clone(), pres_pps.clone()) {
           Ok(_) => {
             println!("Launching default app for file '{}'", pres_pps.clone());
@@ -205,6 +232,25 @@ fn check_pres(usb_root: String) {
     }
     { // PPTX
       let pres_p_s = format!("{}/cartridge-pres.pptx", usb_root);
+      println!("pres_p_s={}", pres_p_s);
+      let pres_p = Path::new(&pres_p_s);
+      if pres_p.exists() {
+        println!("Launching libreoffice --show '{}'", pres_p_s);
+        let mut child = Command::new("libreoffice") // TODO check if installed first
+          .arg("--invisible")
+          .arg("--norestore")
+          .arg("--show")
+          .arg(pres_p_s.clone())
+          .spawn()
+          .expect("Failed to execute libreoffice");
+        
+        // Loops, pkills soffice.bin
+        kill_child_when_file_moves(&mut child, pres_p, "soffice.bin");
+        
+      }
+    }
+    { // PPT
+      let pres_p_s = format!("{}/cartridge-pres.ppt", usb_root);
       println!("pres_p_s={}", pres_p_s);
       let pres_p = Path::new(&pres_p_s);
       if pres_p.exists() {
