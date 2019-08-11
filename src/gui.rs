@@ -2,11 +2,11 @@
 use crate::*;
 
 pub fn draw_settings_win() {
-  println!("draw_settings_win commented to save on compile time");
-  // let mut gui = GuiObject::new();
-  // while gui.handle_winit_events() != false {
-  //     gui.draw();
-  // }
+  //println!("draw_settings_win commented to save on compile time");
+  let mut gui = GuiObject::new();
+  while gui.handle_winit_events() != false {
+      gui.draw();
+  }
 }
 
 pub fn make_tray(icon_path: String) {
@@ -38,10 +38,10 @@ pub fn make_tray(icon_path: String) {
   app.wait_for_message();
 }
 
-/*
+
 widget_ids! {
     pub struct Ids {
-        text,
+        text, words_input
     }
 }
 
@@ -57,6 +57,7 @@ struct GuiObject {
   pub ids:            Ids,
   pub renderer:       conrod::backend::glium::Renderer,
   pub image_map:      conrod::image::Map<glium::texture::Texture2d>,
+  pub words_input_value: String,
 }
 
 impl GuiObject {
@@ -86,6 +87,7 @@ impl GuiObject {
             ids:            ids,
             renderer:       renderer,
             image_map:      image_map,
+            words_input_value: String::new(),
         }
     }
 
@@ -93,11 +95,27 @@ impl GuiObject {
         let ui = &mut self.ui.set_widgets();
 
         // add widgets to screen
-        conrod::widget::Text::new("Hello World!")
-            .middle_of(ui.window)
-            .color(conrod::color::WHITE)
-            .font_size(32)
+        conrod::widget::Text::new("Cartridge App Settings")
+            .top_left_of(ui.window)
+            .color(conrod::color::BLACK)
+            .font_size(24)
             .set(self.ids.text, ui);
+        
+        for edit in conrod::widget::text_box::TextBox::new(&self.words_input_value)
+            .mid_left_of(ui.window)
+            .color(conrod::color::WHITE)
+            .font_size(14)
+            .set(self.ids.words_input, ui) {
+          match edit {
+            conrod::widget::text_box::Event::Enter => {
+                
+            }
+            conrod::widget::text_box::Event::Update(text) => {
+                self.words_input_value = format!("{}", text);
+            }
+          }
+        }
+        
     }
 
     /// @return: false if user asked to close windows.
@@ -113,7 +131,16 @@ impl GuiObject {
                             },
                             ..
                         } => return false,
-                    glium::glutin::WindowEvent::ReceivedCharacter('q') => return false,
+                    glium::glutin::WindowEvent::ReceivedCharacter('q') => {
+                      return false;
+                    },
+                    // glium::glutin::WindowEvent::KeyboardInput{ input, .. } => {
+                    //   if input.state == glium::glutin::ElementState::Released {
+                    //     if let Some(glium::glutin::VirtualKeyCode::Delete) = input.virtual_keycode {
+                    //       self.words_input_value.pop();
+                    //     }
+                    //   }
+                    // }
                     evt => {
                       println!("evt={:?}", evt);
                       ()
@@ -160,10 +187,10 @@ impl GuiObject {
         if let Some(primitives) = self.ui.draw_if_changed() {
             self.renderer.fill(&self.display, primitives, &self.image_map);
             let mut target = self.display.draw();
-            target.clear_color(0.0, 0.0, 0.0, 1.0);
+            // Icon Folder BG color
+            target.clear_color(0.961, 0.808, 0.573, 1.0);
             self.renderer.draw(&self.display, &mut target, &self.image_map).unwrap();
             target.finish().unwrap();
         }
     }
 }
-*/

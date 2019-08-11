@@ -1,10 +1,10 @@
 #![windows_subsystem = "windows"]
 
-//#[macro_use] extern crate conrod;
+#[macro_use] extern crate conrod;
 // https://github.com/DarpGosaNiled/conrod_hello_world/blob/master/src/main.rs
 
-//use conrod::{Positionable, Colorable, Widget};
-//use conrod::backend::glium::glium::{self, Surface};
+use conrod::{Positionable, Colorable, Widget};
+use conrod::backend::glium::glium::{self, Surface};
 
 extern crate systray;
 
