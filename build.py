@@ -39,7 +39,7 @@ if __name__ == '__main__':
   if socket.gethostname() == "azure-angel" and "linux" in sys.platform:
     # Jeffrey's laptop, let's boost CPU because I can't really use an alias here
     print("Detected Jeffrey's laptop, boosting CPU before compile...")
-    subprocess.check_output(["set-cpu", "game"])
+    subprocess.check_output(["sudo", "cpupower", "frequency-set", "--governor", "performance"])
     
   for tgt in NATIVE_CARGO_TARGETS:
     print("Compiling shared library and binary for {}".format(tgt))
@@ -57,7 +57,7 @@ if __name__ == '__main__':
   
   for tgt in WIN_CROSS_TARGETS:
     print("Compiling shared library and binary for {}".format(tgt))
-    subprocess.call(["cross", "build", "--release", "--target", tgt])
+    subprocess.call(["cargo", "build", "--release", "--target", tgt])
     assume_exists("Native binary", "./target/{}/release/{}.exe".format(tgt, APP_NAME))
     # Copy binary up to real repo
     if not os.path.exists("../{}/release/".format(tgt)):

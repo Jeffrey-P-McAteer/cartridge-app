@@ -25,14 +25,16 @@ pub fn make_tray(icon_path: String) {
     
   }
   app.add_menu_item(&"Cartridge App".to_string(), |_| {
-    
+      Ok::<_, systray::Error>(())
   }).ok();
   app.add_menu_separator().ok();
   app.add_menu_item(&"Open Settings".to_string(), |_window| {
       crate::open_settings();
+      Ok::<_, systray::Error>(())
   }).ok();
   app.add_menu_item(&"Quit".to_string(), |window| {
       window.quit();
+      Ok::<_, systray::Error>(())
   }).ok();
   println!("Beginning event loop...");
   app.wait_for_message();

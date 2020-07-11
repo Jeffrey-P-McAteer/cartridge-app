@@ -84,7 +84,13 @@ fn handle_usbs_dbus() -> bool {
 
 #[cfg(target_family = "unix")]
 fn handle_usbs_archlinux() {
-  match fs::read_dir("/run/media/") {
+  handle_usb_mount_dir("/run/media/");
+  handle_usb_mount_dir("/mnt/");
+}
+
+#[cfg(target_family = "unix")]
+fn handle_usb_mount_dir(directory: &str) {
+  match fs::read_dir(directory) {
     Ok(paths) => {
       for path in paths {
         match path {

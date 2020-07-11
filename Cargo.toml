@@ -5,7 +5,7 @@ authors = ["Jeffrey McAteer <jeffrey.p.mcateer@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-systray = "0.3.0"
+systray = "0.4"
 #piston_window = "0.89.0"
 winapi = { version = "0.3.6", features = ["winuser","wincon","shellapi"] }
 
