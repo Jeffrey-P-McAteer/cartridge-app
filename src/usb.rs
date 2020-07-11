@@ -13,15 +13,15 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 pub fn run_listener() {
   println!("Running USB Listener");
-  let was_able_to_use_dbus = handle_usbs_dbus();
-  if ! was_able_to_use_dbus {
+  //let was_able_to_use_dbus = handle_usbs_dbus();
+  //if ! was_able_to_use_dbus {
     loop {
-      // Poll every 250 ms
-      thread::sleep(Duration::from_millis(250));
+      // Poll every 450 ms
+      thread::sleep(Duration::from_millis(450));
       println!("Checking USB...");
       handle_usbs();
     }
-  }
+  //}
 }
 
 #[cfg(target_family = "unix")]
@@ -84,12 +84,12 @@ fn handle_usbs_dbus() -> bool {
 
 #[cfg(target_family = "unix")]
 fn handle_usbs_archlinux() {
-  handle_usb_mount_dir("/run/media/");
-  handle_usb_mount_dir("/mnt/");
+  handle_usb_mount_dir_2("/run/media/");
+  handle_usb_mount_dir_1("/mnt/");
 }
 
 #[cfg(target_family = "unix")]
-fn handle_usb_mount_dir(directory: &str) {
+fn handle_usb_mount_dir_2(directory: &str) {
   match fs::read_dir(directory) {
     Ok(paths) => {
       for path in paths {
@@ -127,6 +127,30 @@ fn handle_usb_mount_dir(directory: &str) {
     }
   }
 }
+
+#[cfg(target_family = "unix")]
+fn handle_usb_mount_dir_1(directory: &str) {
+  match fs::read_dir(directory) {
+    Ok(paths) => {
+      for path in paths {
+        match path {
+          Ok(path) => {
+            let pstring = path.path().to_string_lossy().to_string();
+            check_pres(pstring.clone());
+            check_vid(pstring.clone());
+          }
+          Err(e) => {
+            println!("{}", e);
+          }
+        }
+      }
+    }
+    Err(e) => {
+      println!("{}", e);
+    }
+  }
+}
+
 
 #[cfg(target_family = "windows")]
 fn handle_usbs() {
